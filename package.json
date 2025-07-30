@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "@fastify/static": "^7.0.4",
+    		"@mercuryworkshop/bare-mux": "^2.1.6",
+		"@mercuryworkshop/epoxy-transport": "^2.1.25",
+    "@tomphttp/bare-server-node": "^2.0.2",
+    "express": "^4.18.1",
+    "fastify": "^4.28.1",
+    "http-proxy": "^1.18.1",
+    "os": "^0.1.1",
+    "path": "^0.12.7",
+    "serve-static": "^1.15.0",
+    "wisp-server-node": "latest"
+	},
+  "name": "apex",
+  "description": "A lightweight game site",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node ."
+  },
+  "author": "",
+  "license": "GPL-3.0-or-later"
+}
