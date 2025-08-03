@@ -22,7 +22,54 @@ const { createBareServer } = require('@tomphttp/bare-server-node');
            }
        }
    });
+
+   let active_users = 0
+   let message = ""
+
+   fastify.get('/any-message/*', async (req, reply) => {
+       message = req.params['*'].replace("+"," ");
+
+       // to use visit / 
+
+       // im *sure* nobody will abuse this!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       const hasHtml = /<[^>]*>/g.test(message);
+       if (hasHtml) {
+           reply.status(400).send('trying to html inject in the big 25 :withered_rose:');
+           return;
+       }
+       reply.send('ok')
+   })
+
+   fastify.get('/message/', async (req, reply) => {
+       reply.send(message)
+   })
+
+   fastify.get("/register-active/", async (req, reply) => {
+       active_users += 1
+       setTimeout(() => {
+           active_users -= 1
+       }, 30 * 60 * 1000) // 30 minutes 
+       reply.send(active_users)
+   })
  
+   fastify.get('/search_complete/*', async (req, reply) => {
+       const query = req.params['*']; // Get the search query from the URL path
+       if (!query) {
+           reply.status(400).send('Search query is missing');
+           return;
+       }
+   
+       try {
+           const response = await fetch(`https://google.com/complete/search?client=firefox&hl=en&q=${encodeURIComponent(query)}`);
+           const suggestions = await response.json();
+           reply.status(200).send(suggestions);
+       } catch (error) {
+           console.error('Error fetching search suggestions:', error);
+           reply.status(500).send('no search results.');
+       }
+   });
+   
+   // 404 handler for all undefined routes
    fastify.setNotFoundHandler((req, reply) => {
        reply.status(404).sendFile('404.html', { root: join(__dirname, 'public') });
    });

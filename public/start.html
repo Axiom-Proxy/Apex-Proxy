@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Axiom</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* CSS Variables for theming */
+        :root {
+            --color-primary: #6366f1;
+            --color-secondary: #8b5cf6;
+            --color-accent: #06b6d4;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            --color-surface: rgba(255, 255, 255, 0.08);
+            --color-surface-hover: rgba(255, 255, 255, 0.12);
+            --color-surface-active: rgba(255, 255, 255, 0.16);
+            --color-text-primary: #f8fafc;
+            --color-text-secondary: #cbd5e1;
+            --color-text-muted: #94a3b8;
+            --color-border: rgba(255, 255, 255, 0.2);
+            --color-border-hover: rgba(255, 255, 255, 0.4);
+            --glass-background: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --glass-blur: blur(20px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--color-text-primary);
+            position: relative;
+            background: var(--color-background);
+        }
+
+        /* Dynamic background gradients */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Top bar with glass morphism */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 100;
+        }
+
+        /* Stats redesigned as cards */
+        .stats-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-card:hover {
+            background: var(--color-surface-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .stat-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: var(--color-surface-hover);
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 2px;
+            color: var(--color-text-secondary);
+        }
+
+        /* Time display redesigned */
+        .time-widget {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .time-display {
+            font-size: 32px;
+            font-weight: 200;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .date-display {
+            font-size: 12px;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+
+        /* Main content area */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            padding: 120px 40px 40px;
+            position: relative;
+        }
+
+        /* Logo with animated gradient */
+        .logo-container {
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .logo {
+            font-size: clamp(60px, 10vw, 120px);
+            font-weight: 200;
+            letter-spacing: -4px;
+            background: linear-gradient(135deg, var(--color-text-primary) 0%, var(--color-primary) 50%, var(--color-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: gradient-shift 8s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .logo-subtitle {
+            position: absolute;
+            bottom: -20px;
+            right: 0;
+            font-size: 12px;
+            opacity: 0.5;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+        }
+
+        /* Search redesigned */
+        .search-wrapper {
+            width: 100%;
+            max-width: 700px;
+            margin-bottom: 80px;
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 24px 32px;
+            font-size: 18px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            outline: none;
+            color: var(--color-text-primary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .search-input::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        .search-input:focus {
+            background: var(--color-surface-hover);
+            border-color: var(--color-border-hover);
+            box-shadow: 0 0 0 4px var(--color-surface);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            background-color: transparent;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--color-text-primary);
+        }
+
+        .search-button:hover {
+            background: var(--color-surface-active);
+        }
+
+        /* Quick access redesigned as a dock */
+        .dock-container {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-background);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .dock-item {
+            width: 56px;
+            height: 56px;
+            background: var(--color-surface);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dock-item::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, var(--color-surface-active) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            transition: all 0.3s;
+        }
+
+        .dock-item:hover::before {
+            width: 100%;
+            height: 100%;
+        }
+
+        .dock-item:hover {
+            transform: translateY(-8px) scale(1.1);
+            background: var(--color-surface-hover);
+        }
+
+        .dock-item img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dock-separator {
+            width: 1px;
+            height: 40px;
+            background: var(--color-border);
+            margin: 0 8px;
+            align-self: center;
+        }
+
+        /* Search suggestions redesigned */
+        .resultBox {
+            position: absolute;
+            top: calc(100% + 12px);
+            left: 0;
+            right: 0;
+            background-color: transparent; /* transgender */
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1001;
+            list-style: none;
+        }
+
+        .resultBox li {
+            padding: 16px 24px;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .resultBox li:last-child {
+            border-bottom: none;
+        }
+
+        .resultBox li:hover {
+            background: rgba(255, 255, 255, 0.05);
+            padding-left: 32px;
+        }
+
+        .suggestion-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.5;
+        }
+
+        .suggestion-text {
+            flex: 1;
+        }
+     
+        .particles {
+            position: fixed;
+            bottom: 3px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: particle-float 20s linear infinite;
+            animation-delay: 0s;
+        }
+
+        @keyframes particle-float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Settings button */
+        .settings-button {
+            position: fixed;
+            top: 100px;
+            right: 40px;
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .settings-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 0 20px;
+                flex-direction: column;
+                height: auto;
+                padding: 20px;
+                gap: 20px;
+            }
+
+            .stats-container {
+                order: 2;
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .stat-card {
+                padding: 8px 12px;
+            }
+
+            .stat-number {
+                font-size: 16px;
+            }
+
+            .time-widget {
+                order: 1;
+                align-items: center;
+            }
+
+            .dock-container {
+                bottom: 20px;
+                padding: 12px;
+                gap: 8px;
+            }
+
+            .dock-item {
+                width: 48px;
+                height: 48px;
+            }
+
+            .main-container {
+                padding: 140px 20px 100px;
+            }
+
+            .settings-button {
+                top: auto;
+                bottom: 100px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background elements -->
+    <div class="background-container">
+        <div class="gradient-orb orb1"></div>
+        <div class="gradient-orb orb2"></div>
+        <div class="gradient-orb orb3"></div>
+    </div>
+    <div class="grid-overlay"></div>
+    
+    <!-- Floating particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Top bar -->
+    <div class="top-bar">
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-number" id="lifetimevisit">0</div>
+                    <div class="stat-label">Pages Visited</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-number" id="lifetimetime">0</div>
+                    <div class="stat-label">Minutes Active</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <div class="stat-number" id="active-users">0</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+            </div>
+             <div class="stat-card" style="display: none;" id="system-message-div"> <!-- no display by default -->
+                <div class="stat-info">
+                    <div class="stat-number" id="system-message"></div>
+                    <div class="stat-label">System Message</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="time-widget">
+            <div class="time-display" id="timeDisplay">00:00</div>
+            <div class="date-display" id="dateDisplay">Loading...</div>
+        </div>
+    </div>
+
+
+    <!-- Main content -->
+    <div class="main-container">
+        <div class="logo-container">
+            <h1 class="logo">Axiom</h1>
+        </div>        
+        <div class="search-wrapper">
+            <div class="search-container">
+                <input type="text" id="input" class="search-input" placeholder="What are you looking for today?">
+                <button class="search-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dock -->
+    <div class="dock-container">
+        <div class="dock-item" onclick="window.location.href = './launch_page.html?url=youtube.com'">
+            <img src="assets/start/youtube.png" alt="YouTube">
+        </div>
+        <div class="dock-item" onclick="window.location.href = './launch_page.html?url=google.com'">
+            <img src="assets/start/google.jpg" alt="Google">
+        </div>
+        <div class="dock-item" onclick="window.location.href = './launch_page.html?url=github.com'">
+            <img src="assets/start/github.png" alt="GitHub">
+        </div>
+        <div class="dock-separator"></div>
+        <div class="dock-item" onclick="window.location.href = './launch_page.html?url=discord.com'">
+            <img src="assets/media/icons/discord.jpg" alt="Discord">
+        </div>
+        <div class="dock-item" onclick="window.location.href = './launch_page.html?url=amazon.com'">
+            <img src="assets/media/icons/amazon.webp" alt="Amazon">
+        </div>
+        <div class="dock-item" onclick="window.location.href = './launch_page.html?url=easyfun.gg/embed/roblox.html?start=1'">
+            <img src="assets/media/icons/roblox.webp" alt="Roblox">
+        </div>
+    </div>
+
+    <script>
+        (async function() {
+            try {
+                const response = await fetch("/message/");
+                const message = await response.text();
+                if (message) {
+                    document.getElementById("system-message").textContent = message;
+                    document.getElementById("system-message-div").style.display = "block";
+                }
+            } catch (error) {
+                console.error("Error fetching message:", error);
+            }
+        })();
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (20 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Update time and date
+        function updateTimeAndDate() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: false
+            });
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'short',
+                day: 'numeric'
+            });
+            
+            document.getElementById('timeDisplay').textContent = timeString;
+            document.getElementById('dateDisplay').textContent = dateString;
+        }
+
+        // Search functionality
+        let suggestions = [];
+        let suggestionTimeout = null;
+
+        function setupSearch() {
+            const searchInput = document.getElementById('input');
+            const searchButton = document.querySelector('.search-button');
+            const resultBox = document.createElement("ul");
+            resultBox.classList.add("resultBox");
+            searchInput.parentNode.appendChild(resultBox);
+
+            // Search on button click
+            searchButton.addEventListener('click', () => {
+                const value = searchInput.value.trim();
+                if (value) {
+                    window.location = "launch_page.html?url=" + encodeURIComponent(value);
+                }
+            });
+
+            // Search input events
+            searchInput.addEventListener("focusout", () => {
+                setTimeout(() => {
+                    resultBox.innerHTML = "";
+                }, 200);
+            });
+
+            searchInput.addEventListener("input", function (e) {
+                const userData = e.target.value.trim();
+
+                if (suggestionTimeout) {
+                    clearTimeout(suggestionTimeout);
+                }
+
+                if (userData) {
+                    suggestionTimeout = setTimeout(() => {
+                        fetchSearchSuggestions(userData, resultBox);
+                    }, 300);
+                } else {
+                    resultBox.innerHTML = "";
+                    suggestions = [];
+                }
+            });
+
+            searchInput.addEventListener("keydown", function (e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    const value = this.value.trim();
+                    if (value) {
+                        window.location = "launch_page.html?url=" + encodeURIComponent(value);
+                    }
+                } else if (e.key === "Escape") {
+                    resultBox.innerHTML = "";
+                    searchInput.blur();
+                }
+            });
+        }
+
+        function fetchSearchSuggestions(query, resultBox) {
+            fetch(`/search_complete/${encodeURIComponent(query)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(jsonData => {
+                    if (Array.isArray(jsonData) && jsonData.length >= 2 && Array.isArray(jsonData[1])) {
+                        suggestions = jsonData[1].slice(0, 5);
+                        showSuggestions(suggestions, resultBox);
+                    } else {
+                        suggestions = [];
+                        showSuggestions([], resultBox);
+                    }
+                })
+                .catch(err => {
+                    console.log("Search suggestions error:", err);
+                    suggestions = [];
+                    showSuggestions([], resultBox);
+                });
+        }
+
+        function showSuggestions(list, resultBox) {
+            if (list.length === 0) {
+                resultBox.innerHTML = "";
+                return;
+            }
+
+            resultBox.innerHTML = list.slice(0, 8).map((suggestion, index) =>
+                `<li onclick="selectSuggestion('${suggestion.replace(/'/g, "\\'")}')">
+                    <svg class="suggestion-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <span class="suggestion-text">${suggestion}</span>
+                </li>`
+            ).join('');
+        }
+
+        function selectSuggestion(suggestion) {
+            document.getElementById('input').value = suggestion;
+            window.location = "launch_page.html?url=" + encodeURIComponent(suggestion);
+        }
+
+        // Easter eggs
+        let keystrokes = '';
+        document.addEventListener('keydown', function (event) {
+            keystrokes = (keystrokes + event.key).slice(-10);
+
+            if (keystrokes.includes("axiom")) {
+                alert('Welcome to the next level of browsing');
+                keystrokes = '';
+            }
+            if (keystrokes.includes("baka")) {
+                localStorage.setItem("axiom_theme", "baka");
+                localStorage.setItem("theme", "baka");
+                keystrokes = '';
+            }
+            if (keystrokes.includes("pippa")) {
+                localStorage.setItem("axiom_theme", "pipkin");
+                localStorage.setItem("theme", "pipkin");
+                localStorage.setItem("pippa", "yessir man");
+                keystrokes = '';
+            }
+        });
+
+        // Pippa easter egg
+        if (localStorage.getItem("pippa") === "yessir man") {
+            const img = document.createElement("img");
+            img.src = "/assets/ultralightbeam.jpg";
+            img.style.position = "fixed";
+            img.style.bottom = "120px";
+            img.style.right = "40px";
+            img.style.width = "120px";
+            img.style.height = "120px";
+            img.style.zIndex = "10";
+            img.style.borderRadius = "20px";
+            img.style.opacity = "0.8";
+            img.style.border = "2px solid rgba(255,255,255,0.2)";
+            document.body.appendChild(img);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function () {
+            createParticles();
+            updateTimeAndDate();
+            setInterval(updateTimeAndDate, 1000);
+            setupSearch();
+            
+            // Load stats
+            document.getElementById("lifetimevisit").textContent = localStorage.getItem("lifetime_visit") || 0;
+            document.getElementById("lifetimetime").textContent = localStorage.getItem("lifetime_time") || 0;
+            
+            try {
+                const activeUsers = await fetch("/register-active/").then(res => res.text());
+                document.getElementById("active-users").textContent = activeUsers;
+            } catch (err) {
+                document.getElementById("active-users").textContent = "N/A";
+            }
+        });
+    </script>
+</body>
+
+</html>
