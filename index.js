@@ -69,7 +69,6 @@ const { createBareServer } = require('@tomphttp/bare-server-node');
        }
    });
    
-   // 404 handler for all undefined routes
    fastify.setNotFoundHandler((req, reply) => {
        reply.status(404).sendFile('404.html', { root: join(__dirname, 'public') });
    });
@@ -100,4 +99,5 @@ const { createBareServer } = require('@tomphttp/bare-server-node');
    
    server.listen(process.env.PORT || 8080, () => {
        console.log(`Server listening on port ${process.env.PORT || 8080}`);
+
    });
